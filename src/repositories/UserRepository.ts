@@ -19,10 +19,13 @@ export class UserRepository{
     static async findUserByEmail(email:string){
         try {
             return await prisma.user.findFirst({
-                where:{
-                    email
-                }
-            })
+            where: {
+                email: {
+                    equals: email,
+                    mode: 'insensitive',
+                },
+            }
+        })
         } catch (error) {
             throw new Error("from repository: ERROR_FIND_USER")
         }

@@ -1,7 +1,8 @@
 import { Request, Response } from "express"
 import { UserService } from "../services/UserService"
-import { signUpSchema } from "../schemas/authSchema"
+import { emailBaseSchema, signUpSchema } from "../schemas/authSchema"
 import { ResponseHandler } from "../utils/ResponseHandler"
+import { UserRepository } from "../repositories/UserRepository"
 
 export const createUser = async (req:Request, res:Response) => {
     const body = req.body
@@ -16,6 +17,23 @@ export const createUser = async (req:Request, res:Response) => {
         return ResponseHandler.json(res,{
             success:false,
             message:"ERROR_IN_CREATING_USER"
+        })
+    }
+}
+
+export const getUser = async (req:Request, res:Response) => {
+    const email = req.body.email
+    const {success,data, error} = emailBaseSchema.safeParse(email)
+    if(!success){
+        return ResponseHandler.zodError(res, error.errors)
+    }
+    try {
+        const user = UserRepository.findUserByEmail(data);
+        return ResponseHandler.json(res, user);
+    } catch (error) {
+        return ResponseHandler.json(res,{
+            success:false,
+            message:"ERROR_IN_GETTING_USER"
         })
     }
 }
