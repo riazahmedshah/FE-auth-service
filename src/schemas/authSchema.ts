@@ -6,6 +6,10 @@ export const emailBaseSchema = z.string({
     required_error:"EMAIL_IS_rEQUIRED"
 }).email("EMAIL_IS_INVALID");
 
+const paswordSchema = z.string({
+        required_error:"PASSWORD_IS_REUIRED"
+    }).length(6,"Must be exactly 6 characters long");
+
 
 
 const checkUserExist = async (email:string) => {
@@ -23,8 +27,11 @@ const emailSchema = emailBaseSchema.refine(checkUserExist,"EMAIL_ALREADY_EXISTS"
 export const signUpSchema = z.object({
     username:z.string().min(3,"USERNAME IS REQUIRED").max(10, "USERNAME_TOO_LONG"),
     email:emailSchema,
-    password:z.string({
-        required_error:"PASSWORD_IS_REUIRED"
-    }).length(6,"Must be exactly 6 characters long")
+    password:paswordSchema
     
+})
+
+export const signInSchema = z.object({
+    email:emailBaseSchema,
+    password:paswordSchema
 })
