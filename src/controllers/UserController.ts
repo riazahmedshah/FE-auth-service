@@ -29,16 +29,15 @@ export const signIn = async (req:Request, res:Response) => {
     }
 
     try {
-        const user = await UserService.signIn(data.email, data.password);
-        return ResponseHandler.json(res, {
-            success:false,
-            data:user
-        })
+        const token = await UserService.signIn(data.email, data.password);
+        return ResponseHandler.json(res, {token})
     } catch (error) {
+        console.error(error)
         return ResponseHandler.json(res,{
             success:false,
-            message:"ERROR_IN_SIGNIN"
-        })
+            message:"ERROR_IN_SIGNIN",
+            error:error
+        },500)
     }
 }
 
