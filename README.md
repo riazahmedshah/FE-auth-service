@@ -1,10 +1,7 @@
 # 🔐 Authentication Service - FlyEasy
 
-**Standalone microservice handling secure identity management for FlyEasy's flight booking platform**
+**Secure identity management for FlyEasy's flight booking platform**
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/flyeasy/auth-service/ci.yml?branch=main)](https://github.com/flyeasy/auth-service/actions)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Microservice](https://img.shields.io/badge/architecture-microservice-brightgreen)](https://microservices.io)
 
 ## 📌 Table of Contents
 - [Features](#-features)
@@ -17,34 +14,45 @@
 ## ✨ Features
 ### Core Authentication
 - JWT-based stateless authentication
-- Refresh token rotation
-- OAuth 2.0 social login (Google, Apple, Facebook)
+- Role-based access control (RBAC)
+- Secure password hashing
 
 ### Security
-- RBAC (Role-Based Access Control)
-- Rate limiting (10 requests/min)
+- Input validation with Zod
+- Rate limiting
 - Password policy enforcement
-- Automatic token blacklisting
-
-### Integrations
-- gRPC for internal service communication
-- Kafka events for user lifecycle changes
-- Redis session management
 
 ## 🛠 Tech Stack
-| Category       | Technology                          |
-|----------------|-------------------------------------|
-| Framework      | NestJS                              |
-| Database       | PostgreSQL (Users), Redis (Sessions)|
-| APIs           | REST, gRPC                          |
-| Security       | Helmet, CSRF, Argon2                |
-| Observability  | Prometheus, Grafana                 |
-| Messaging      | Kafka                               |
+| Component       | Technology               |
+|-----------------|--------------------------|
+| Runtime         | Node.js                  |
+| Framework       | Express                  |
+| Language        | TypeScript               |
+| Database        | PostgreSQL               |
+| Validation      | Zod                      |
+| Authentication  | JWT, bcrypt              |
+| API Style       | RESTful                  |
 
-## 📚 API Documentation
-Explore our API endpoints:
+<!-- ## 📚 API Documentation -->
 
+### Authentication Endpoints
+
+#### User Registration
 ```bash
-# Get access token
+POST /auth/user
+Content-Type: application/json
+
+{
+  "username": "flyeasy",
+  "email": "user@flyeasy.com",
+  "password": "secret"
+}
+
 POST /auth/login
-Body: { "email": "user@flyeasy.com", "password": "secret" }
+Content-Type: application/json
+
+{
+  "email": "user@flyeasy.com",
+  "password": "secret"
+}
+```
