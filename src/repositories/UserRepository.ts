@@ -6,9 +6,17 @@ export class UserRepository{
         try {
             return await prisma.user.create({
                 data:{
-                    username:data.username,
-                    email:data.email,
-                    password:data.password
+                    ...data,
+                    user_role:{
+                        create:{
+                            role:{
+                                connect:{name:"USER"}
+                            }
+                        }
+                    }
+                },
+                include:{
+                    user_role:true
                 }
             });
         } catch (error) {
