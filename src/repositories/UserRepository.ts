@@ -38,6 +38,57 @@ export class UserRepository{
             throw new Error("from repository: ERROR_FIND_USER")
         }
     }
+    
+    static async assignRole(userId:number, roleName:string){
+        try {
+            const role = await prisma.role.findUnique({
+                where:{
+                    name:roleName
+                }
+            });
+
+            if(!role){
+                throw new Error("Role not found")
+            }
+
+            const assign = await prisma.user_Role.upsert({
+                where: {
+                    roleId_userId: {
+                        roleId: role.id,
+                        userId
+                    }
+                },
+                update: {},
+                create: {userId, roleId:role.id},
+            });
+            return assign;
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    static async removeRole(userId:number, roleName:string){
+        try {
+            const role = await prisma.role.findUnique({
+                where:{
+                    name:roleName
+                }
+            });
+
+            if(!role){
+                throw new Error("Role not found");
+            }
+
+            return await prisma.user_Role.delete({
+                where:{
+                    roleId_userId:{roleId:role.id,userId}
+                }
+            })
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     static async updateUser(id:number, data:UserProps){
         try {
