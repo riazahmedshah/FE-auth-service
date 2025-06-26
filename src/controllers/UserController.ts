@@ -3,7 +3,6 @@ import { UserService } from "../services/UserService"
 import { emailBaseSchema, signInSchema, signUpSchema } from "../schemas/authSchema"
 import { ResponseHandler } from "../utils/ResponseHandler"
 import { UserRepository } from "../repositories/UserRepository"
-import { AppError } from "../utils/CustomHttpError"
 import { handleError } from "../utils/ErrorFunction"
 
 export const createUser = async (req:Request, res:Response) => {
