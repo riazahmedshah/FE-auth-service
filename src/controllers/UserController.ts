@@ -41,6 +41,23 @@ export const signIn = async (req:Request, res:Response) => {
     }
 }
 
+export const assignRole = async (req:Request, res:Response) => {
+    const userId = Number(req.params.userId)
+    const roleName = req.body;
+    try {
+        const newRole = await UserService.assignRole(userId, roleName);
+        return ResponseHandler.created(res,{newRole});
+    } catch (error) {
+        console.error(error)
+        return ResponseHandler.json(res,{
+            success:false,
+            message:"ERROR_IN_SIGNIN",
+            error:error
+        },500)
+    }
+
+}
+
 export const getUser = async (req:Request, res:Response) => {
     const email = req.body.email
     const {success,data, error} = emailBaseSchema.safeParse(email)

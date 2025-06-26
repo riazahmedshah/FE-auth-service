@@ -52,6 +52,14 @@ export class UserService{
         }
     }
 
+    static async assignRole(userId:number, roleName:string){
+        try {
+            return await UserRepository.assignRole(userId,roleName);
+        } catch (error) {
+            throw new Error("from service: ERROR_assignRole")
+        }
+    }
+
     static async updateUser(id:number, data:UserProps){
         try {
             return await UserRepository.updateUser(id, data);
