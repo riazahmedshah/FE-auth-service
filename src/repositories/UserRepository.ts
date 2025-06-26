@@ -1,5 +1,7 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { prisma } from "../config/db";
 import { UserProps } from "../types/UseTypes";
+import { AppError } from "../utils/CustomHttpError";
 
 export class UserRepository{
     static async createUser(data:UserProps){
@@ -20,7 +22,15 @@ export class UserRepository{
                 }
             });
         } catch (error) {
-            throw new Error("from repository: ERROR_CREATE_USER")
+            if(error instanceof PrismaClientKnownRequestError){
+                if(error.code == "P2002"){
+                    throw AppError.Conflict("Email already exists",{
+                        field:"email",
+                        prismaError:error.meta
+                    });
+                };
+            };
+            throw error;
         }
     }
 
@@ -35,7 +45,10 @@ export class UserRepository{
             }
         })
         } catch (error) {
-            throw new Error("from repository: ERROR_FIND_USER")
+            if(error instanceof AppError.NotFound){
+                throw error
+            }
+            throw error
         }
     }
     
@@ -46,11 +59,9 @@ export class UserRepository{
                     name:roleName
                 }
             });
-
             if(!role){
-                throw new Error("Role not found")
+                throw AppError.NotFound(`Role '${roleName}' not found`);
             }
-
             const assign = await prisma.user_Role.upsert({
                 where: {
                     roleId_userId: {
@@ -64,7 +75,20 @@ export class UserRepository{
             return assign;
 
         } catch (error) {
-            console.error(error);
+            if (error instanceof PrismaClientKnownRequestError) {
+                if (error.code === 'P2003') {
+                    throw AppError.NotFound('User or role does not exist', { 
+                        prismaError: error.meta 
+                    });
+                }
+                if (error.code === 'P2002') {
+                    throw AppError.Conflict('Role already assigned to user', { 
+                        prismaError: error.meta 
+                    });
+                }
+            }
+            if (error instanceof AppError.NotFound) throw error;
+            throw error;
         }
     }
 
@@ -101,7 +125,20 @@ export class UserRepository{
                 }
             })
         } catch (error) {
-            throw new Error("from repository: ERROR_UPDATE_USER")
+            if (error instanceof PrismaClientKnownRequestError) {
+                if (error.code === 'P2025') {
+                    throw AppError.NotFound('User not found', { 
+                        prismaError: error.meta 
+                    });
+                }
+                if (error.code === 'P2002') {
+                    throw AppError.Conflict('Username already exists', { 
+                        field: 'username',
+                        prismaError: error.meta 
+                    });
+                }
+            }
+            throw error;
         }
     }
 }

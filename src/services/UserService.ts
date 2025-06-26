@@ -3,6 +3,7 @@ import { JwtPayload } from "../types/jwtTypes";
 import { UserProps } from "../types/UseTypes";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import { AppError } from "../utils/CustomHttpError";
 
 export class UserService{
     static async createUser(data:UserProps){
@@ -21,7 +22,7 @@ export class UserService{
             }
             const isPasswordMatch = await bcrypt.compare(password,isUserExist.password)
             if(!isPasswordMatch){
-                throw new Error("Incorrect Pssword");
+                throw AppError.BadRequest("Incorrect Pssword")
             }
 
             const payload = {
@@ -32,7 +33,10 @@ export class UserService{
             const token = jwt.sign(payload, "secret")
             return token
         } catch (error) {
-            throw new Error("from service: ERROR_SIGNIN_USER")
+            if(error instanceof AppError.NotFound){
+                throw AppError.NotFound("User not found");
+            }
+            throw AppError.InternalServerError('Failed to create user', { error });
         }
     }
 
@@ -48,7 +52,7 @@ export class UserService{
                 throw new Error("Invalid token");
             }
             console.error("Authentication error:", error);
-            throw new Error("Authentication failed");
+            throw AppError.Unauthorized("Not authenticated", { error });
         }
     }
 
@@ -56,7 +60,8 @@ export class UserService{
         try {
             return await UserRepository.assignRole(userId,roleName);
         } catch (error) {
-            throw new Error("from service: ERROR_assignRole")
+            if(error instanceof AppError) throw error;
+            throw AppError.InternalServerError('Failed to assign role', { error });
         }
     }
 
@@ -64,7 +69,8 @@ export class UserService{
         try {
             return await UserRepository.updateUser(id, data);
         } catch (error) {
-            throw new Error("from service: ERROR_UPDATE_USER")
+            if(error instanceof AppError) throw error
+            throw AppError.InternalServerError('Failed to update user', { error })
         }
     }
 }
